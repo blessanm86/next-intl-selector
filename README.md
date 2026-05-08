@@ -2,7 +2,6 @@
 
 [![npm version](https://img.shields.io/npm/v/next-intl-selector.svg)](https://www.npmjs.com/package/next-intl-selector)
 [![CI](https://github.com/blessanm86/next-intl-selector/actions/workflows/ci.yml/badge.svg)](https://github.com/blessanm86/next-intl-selector/actions/workflows/ci.yml)
-[![Bundle size](https://img.shields.io/bundlephobia/minzip/next-intl-selector?label=minzip)](https://bundlephobia.com/package/next-intl-selector)
 [![License: MIT](https://img.shields.io/npm/l/next-intl-selector.svg)](./LICENSE)
 
 A thin [`next-intl`](https://github.com/amannn/next-intl) wrapper that replaces string-key translation lookups with property selectors — eliminating TypeScript's `TS2590` ("expression produces a union type that is too complex to represent") at scale, while preserving full ICU values typing.
