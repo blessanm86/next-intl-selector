@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version bump (semver level)
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run lint
+      - run: pnpm test
+      - run: pnpm run build
+      - run: pnpm run lint:package
+
+      - name: Configure git for release commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run release-it
+        run: pnpm exec release-it ${{ github.event.inputs.version }} --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Auth precedence:
+          #   1. After Trusted Publishing is configured on npmjs.com,
+          #      OIDC handles auth automatically via `id-token: write`
+          #      and NPM_TOKEN can be deleted from repo secrets.
+          #   2. For the very first publish (before the package exists
+          #      on npm, so Trusted Publisher cannot be configured yet),
+          #      a short-lived granular access token in NPM_TOKEN works.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

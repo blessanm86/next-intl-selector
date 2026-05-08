@@ -1,0 +1,86 @@
+{
+  "name": "next-intl-selector",
+  "version": "0.1.0",
+  "description": "Selector-based translation API for next-intl. Eliminates TS2590 at scale while preserving full ICU values typing.",
+  "license": "MIT",
+  "author": "Blessan Mathew <blessan.mathew@dash0.com>",
+  "homepage": "https://github.com/blessanm86/next-intl-selector#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blessanm86/next-intl-selector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blessanm86/next-intl-selector/issues"
+  },
+  "keywords": [
+    "next-intl",
+    "use-intl",
+    "i18n",
+    "internationalization",
+    "translation",
+    "selector",
+    "typescript",
+    "ts2590"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "lint:package": "publint && attw --pack --profile=esm-only",
+    "prepublishOnly": "pnpm run build && pnpm run lint:package"
+  },
+  "peerDependencies": {
+    "next-intl": ">=4.0.0",
+    "react": ">=18.0.0",
+    "use-intl": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "next-intl": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.2",
+    "@release-it/conventional-changelog": "^11.0.0",
+    "@schummar/icu-type-parser": "1.26.1",
+    "@testing-library/react": "16.3.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "happy-dom": "^15.11.0",
+    "next-intl": "^4.11.0",
+    "publint": "0.3.20",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "release-it": "^20.0.1",
+    "tsdown": "0.22.0",
+    "typescript": "^6.0.3",
+    "use-intl": "^4.11.0",
+    "vitest": "4.1.5"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

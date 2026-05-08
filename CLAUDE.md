@@ -170,4 +170,10 @@ src/
 
 ## Commands
 
-None yet — project has no source code. Will be updated as package scaffolding is added.
+- `pnpm install` — install dependencies (pnpm 10.x)
+- `pnpm run lint` — type-check the project (`tsc --noEmit`)
+- `pnpm test` — run the Vitest suite once
+- `pnpm run test:watch` — watch mode for Vitest
+- `pnpm run build` — build the package via tsdown to `dist/` (ESM + `.d.ts`)
+- `pnpm run lint:package` — `publint` + `arethetypeswrong` against the packed tarball
+- `pnpm run prepublishOnly` — full pre-publish gate: build + package validation
