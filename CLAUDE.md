@@ -92,11 +92,11 @@ At production density (3-10 callsites/file), selector-icu is ~1.6× selector-lea
 - **Project-wide tsgo**: 14.8% reduction (7.1s -> 6.1s) from porting just 8 files
 - **Worst hotspots**: 62-97% reduction (e.g. 8.7s -> below threshold)
 
-Details: `docs/DECISION.md`, `docs/selector-api-validation-perf.md`, `docs/as-message-key-selector-api-perf-analysis.md`
+Details: `docs/DECISION.md`.
 
 ## Project status
 
-This repo is in the **research/design phase**. No source code yet — only the `docs/` folder containing research, validation findings, and API design from an internal proof-of-concept at Dash0. The architectural decision (selector-icu with full ICU values typing) is settled — see `docs/DECISION.md`.
+v1 is published on npm. The architectural decision (selector-icu with full ICU values typing) is settled — see `docs/DECISION.md`.
 
 ### Decided
 
@@ -128,22 +128,7 @@ Hybrid approach — test what we own, plus parity checks against next-intl:
 
 ## Documentation
 
-The `docs/` folder contains the full research record from the Dash0 proof-of-concept:
-
-| Document | What it covers |
-|---|---|
-| `DECISION.md` | **Canonical architectural decision record** — selector-icu rationale, perf envelope, ruled-out alternatives, implementation principles |
-| `selector-api-pitch.html` | Visual pitch deck (the gist shared externally) |
-| `as-message-key-selector-api-requirements.md` | Original problem statement and requirements |
-| `as-message-key-selector-api-perf-analysis.md` | Benchmarks of 5 type variants |
-| `selector-api-handoff.md` | Implementation spec for the internal migration |
-| `selector-api-validation.md` | Phase 1 validation scope and plan |
-| `validation-plan-detailed.md` | 9-unit implementation breakdown |
-| `selector-api-validation-findings.md` | Validation results and recommendations |
-| `selector-api-validation-perf.md` | Quantitative perf measurements |
-| `dynamic-key-audit.md` | Audit of 54 runtime-dynamic key sites |
-| `i18next-comparison-research.md` | i18next selector API comparison |
-| `legacy-cleanup-audit.md` | Deprecated symbol inventory |
+- `docs/DECISION.md` — canonical architectural decision record (selector-icu rationale, perf envelope, ruled-out alternatives, implementation principles).
 
 ## External references
 
