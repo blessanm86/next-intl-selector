@@ -8,6 +8,14 @@ production migration takes.
 Most of these reference each other via `parent:` frontmatter — filenames are
 preserved from the source repo so the cross-links keep working.
 
+## START HERE
+
+- **`DECISION.md`** — the canonical record of what we're building and why.
+  Settles the open questions left by the research below (selector-leaf vs
+  selector-icu, parser choice, performance envelope, what's deliberately
+  out of scope for v1). **Read this first.** Everything else is supporting
+  evidence.
+
 ## The pitch
 
 - **`selector-api-pitch.html`** — the single-page case for the API. Hero
@@ -63,8 +71,10 @@ library.
 
 ## Suggested reading order
 
-1. `selector-api-pitch.html` — for the elevator pitch
-2. `as-message-key-selector-api-requirements.md` — for the *why*
-3. `selector-api-handoff.md` — for the *what to build*
-4. `selector-api-validation-findings.md` — for the *gotchas*
-5. Everything else as reference
+1. **`DECISION.md`** — the canonical record (what we're building, what
+   we ruled out, performance envelope, principles for v1)
+2. `selector-api-pitch.html` — for the elevator pitch
+3. `as-message-key-selector-api-requirements.md` — for the *why*
+4. `selector-api-handoff.md` — for the *what to build*
+5. `selector-api-validation-findings.md` — for the *gotchas*
+6. Everything else as reference
