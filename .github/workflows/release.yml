@@ -48,6 +48,3 @@ jobs:
         run: pnpm exec release-it ${{ github.event.inputs.version }} --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # npm auth via Trusted Publishing (OIDC). Configure the
-          # trusted publisher for this package on npmjs.com — no
-          # long-lived NPM_TOKEN required.
