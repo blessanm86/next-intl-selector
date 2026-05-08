@@ -23,6 +23,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # PAT (admin) so the version-bump push bypasses main's ruleset.
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - uses: pnpm/action-setup@v4
 
@@ -48,4 +50,5 @@ jobs:
       - name: Run release-it
         run: pnpm exec release-it ${{ github.event.inputs.version }} --ci
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Same PAT, used by release-it to create the GitHub Release.
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
