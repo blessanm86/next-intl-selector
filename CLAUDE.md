@@ -23,7 +23,8 @@ Tests are colocated as `*.test.ts(x)`. There's a parity-test pattern in `index.t
 ## Commands
 
 - `pnpm install` — pnpm 10.x, pinned via `packageManager` field
-- `pnpm run lint` — `tsc --noEmit`
+- `pnpm run lint` — oxlint (config in `.oxlintrc.json`)
+- `pnpm run typecheck` — `tsc --noEmit`
 - `pnpm test` / `pnpm run test:watch` — vitest
 - `pnpm run build` — tsdown → ESM-only `dist/`
 - `pnpm run lint:package` — `publint` + `attw --profile=esm-only`
