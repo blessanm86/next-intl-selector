@@ -15,7 +15,7 @@
     "publishArgs": ["--provenance"]
   },
   "hooks": {
-    "before:init": ["pnpm run lint", "pnpm test", "pnpm run build", "pnpm run lint:package"]
+    "before:init": ["pnpm run lint", "pnpm run typecheck", "pnpm test", "pnpm run build", "pnpm run lint:package"]
   },
   "plugins": {
     "@release-it/conventional-changelog": {
