@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif">
+  <rect width="720" height="360" fill="#fbfbfa"/>
+
+  <text x="36" y="44" font-size="18" font-weight="600" fill="#1a1a1a">Type-checker Check time, before vs after</text>
+  <text x="36" y="64" font-size="12" fill="#8a8a8a">Cold runs, 5-sample mean, same machine. Lower is better. Check time = type-checking phase only.</text>
+
+  <!-- Worst-offender file -->
+  <text x="36" y="120" font-size="13" font-weight="600" fill="#1a1a1a">Worst-offender file</text>
+  <text x="36" y="138" font-size="11" fill="#8a8a8a">use-get-column-label.ts</text>
+  <rect x="36" y="148" width="600" height="20" fill="#fef2f2" rx="3"/>
+  <rect x="36" y="148" width="600" height="20" fill="#b91c1c" opacity="0.85" rx="3"/>
+  <text x="46" y="162" font-size="12" fill="#ffffff" font-weight="600">8.7 s</text>
+  <text x="640" y="162" font-size="11" fill="#8a8a8a">before</text>
+  <rect x="36" y="174" width="600" height="20" fill="#ecfdf5" rx="3"/>
+  <rect x="36" y="174" width="14" height="20" fill="#15803d" rx="3"/>
+  <text x="58" y="188" font-size="12" fill="#15803d" font-weight="600">below profiler threshold</text>
+  <text x="640" y="188" font-size="11" fill="#8a8a8a">after</text>
+  <text x="36" y="214" font-size="13" font-weight="600" fill="#15803d">−97%</text>
+  <text x="78" y="214" font-size="12" fill="#525252">— the file dropped out of the hot list entirely.</text>
+
+  <!-- Whole project -->
+  <text x="36" y="262" font-size="13" font-weight="600" fill="#1a1a1a">Whole-project Check time</text>
+  <text x="36" y="280" font-size="11" fill="#8a8a8a">tsgo cold run, every file (type-checking phase only)</text>
+  <rect x="36" y="290" width="600" height="20" fill="#fef2f2" rx="3"/>
+  <rect x="36" y="290" width="600" height="20" fill="#b91c1c" opacity="0.85" rx="3"/>
+  <text x="46" y="304" font-size="12" fill="#ffffff" font-weight="600">7.11 s</text>
+  <text x="640" y="304" font-size="11" fill="#8a8a8a">before</text>
+  <rect x="36" y="316" width="600" height="20" fill="#ecfdf5" rx="3"/>
+  <rect x="36" y="316" width="511" height="20" fill="#15803d" opacity="0.85" rx="3"/>
+  <text x="46" y="330" font-size="12" fill="#ffffff" font-weight="600">6.06 s &nbsp;(−14.8%)</text>
+  <text x="640" y="330" font-size="11" fill="#8a8a8a">after</text>
+</svg>
