@@ -45,7 +45,8 @@
     "build": "tsdown",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc --noEmit",
+    "lint": "oxlint",
+    "typecheck": "tsc --noEmit",
     "lint:package": "publint && attw --pack --profile=esm-only",
     "prepublishOnly": "pnpm run build && pnpm run lint:package"
   },
@@ -68,6 +69,7 @@
     "@types/react-dom": "^19.0.0",
     "happy-dom": "^15.11.0",
     "next-intl": "^4.11.0",
+    "oxlint": "^1.63.0",
     "publint": "0.3.20",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
