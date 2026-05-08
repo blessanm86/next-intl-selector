@@ -48,11 +48,6 @@ jobs:
         run: pnpm exec release-it ${{ github.event.inputs.version }} --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Auth precedence:
-          #   1. After Trusted Publishing is configured on npmjs.com,
-          #      OIDC handles auth automatically via `id-token: write`
-          #      and NPM_TOKEN can be deleted from repo secrets.
-          #   2. For the very first publish (before the package exists
-          #      on npm, so Trusted Publisher cannot be configured yet),
-          #      a short-lived granular access token in NPM_TOKEN works.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # npm auth via Trusted Publishing (OIDC). Configure the
+          # trusted publisher for this package on npmjs.com — no
+          # long-lived NPM_TOKEN required.
