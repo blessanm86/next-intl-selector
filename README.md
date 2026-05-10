@@ -92,6 +92,36 @@ function Button({ label }: { label: MessageSelector }) {
 | `t.has(selector)` | `m => leaf => boolean` | **Leaf-only** (see below) |
 | `t.hasRaw(path)` | `(string) => boolean` | Escape hatch for runtime-dynamic paths |
 
+### Utilities
+
+```ts
+import { pathFromSelector, selectorFromPath } from "next-intl-selector";
+```
+
+| Function | Signature | Notes |
+|---|---|---|
+| `pathFromSelector(selector)` | `MessageSelector => string` | Resolves a selector to its dot-path (e.g. `"Foo.Bar"`). Cached per-reference via WeakMap. |
+| `selectorFromPath(path)` | `string => MessageSelector` | Inverse — builds a selector from a dot-path. Use for runtime-dynamic paths from third-party SDKs or config. |
+
+### Testing
+
+```ts
+import { mockSelectorTranslator } from "next-intl-selector/testing";
+
+const t = mockSelectorTranslator();
+t(m => m.Foo.Bar); // returns "Foo.Bar"
+```
+
+`mockSelectorTranslator(options?)` builds a `SelectorTranslator`-shaped mock with all surface methods. By default `t()` returns the dotted path, `t.has()` returns `true`, and `t.raw()` returns `undefined`. Override with:
+
+```ts
+const t = mockSelectorTranslator({
+  translate: (path, values) => `translated:${path}`,
+  has: (path) => path !== "Missing.Key",
+  raw: (path) => ({ nested: "value" }),
+});
+```
+
 ### Differences from `next-intl`
 
 - **No `namespace` argument** on `useTranslations`, `createTranslator`, or `getTranslations`. Selectors encode the full path. Accepting a namespace would force `NamespaceKeys<NestedKeyOf<Messages>>` to evaluate, reintroducing `TS2590`.
