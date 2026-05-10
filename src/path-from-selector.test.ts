@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pathFromSelector } from "./path-from-selector.js";
+import { pathFromSelector, selectorFromPath } from "./path-from-selector.js";
 
 describe("pathFromSelector", () => {
   it("resolves a single-segment key", () => {
@@ -31,20 +31,83 @@ describe("pathFromSelector", () => {
   });
 
   it("preserves keys that contain dot characters as a single segment", () => {
-    // Note: the resulting dot-path is ambiguous if a downstream resolver
-    // splits on '.', but that ambiguity is next-intl's, not ours. We
-    // record exactly what the selector accessed.
     expect(pathFromSelector((m: any) => m["foo.bar"])).toBe("foo.bar");
   });
 
   it("ignores Symbol-keyed access (e.g. Symbol.toPrimitive)", () => {
     const result = pathFromSelector((m: any) => {
-      // Engines and runtimes probe symbols on returned values; verify we
-      // do not record those probes as path segments.
       void m[Symbol.toPrimitive];
       void m[Symbol.iterator];
       return m.realKey;
     });
     expect(result).toBe("realKey");
+  });
+
+  it("ignores 'then' key probes (Promise interop)", () => {
+    const result = pathFromSelector((m: any) => {
+      void m.then;
+      return m.actualKey;
+    });
+    expect(result).toBe("actualKey");
+  });
+
+  it("caches results for the same selector reference", () => {
+    const selector = (m: any) => m.Cached.Path;
+    const first = pathFromSelector(selector);
+    const second = pathFromSelector(selector);
+    expect(first).toBe("Cached.Path");
+    expect(second).toBe("Cached.Path");
+    expect(first).toBe(second);
+  });
+
+  it("survives a selector that throws", () => {
+    const selector = (m: any) => {
+      void m.before;
+      throw new Error("boom");
+    };
+    expect(pathFromSelector(selector as any)).toBe("before");
+  });
+
+  it("works with selectors built by selectorFromPath (callable proxy target)", () => {
+    const sel = selectorFromPath("Round.Trip");
+    expect(pathFromSelector(sel)).toBe("Round.Trip");
+  });
+});
+
+describe("selectorFromPath", () => {
+  it("resolves a single-segment path against an object", () => {
+    const sel = selectorFromPath("title");
+    expect(sel({ title: "Hello" } as any)).toBe("Hello");
+  });
+
+  it("resolves a deeply nested path", () => {
+    const sel = selectorFromPath("a.b.c");
+    expect(sel({ a: { b: { c: "deep" } } } as any)).toBe("deep");
+  });
+
+  it("returns empty string for an empty path", () => {
+    const sel = selectorFromPath("");
+    expect(sel({ title: "Hello" } as any)).toBe("");
+  });
+
+  it("returns empty string when a segment is missing", () => {
+    const sel = selectorFromPath("a.b.c");
+    expect(sel({ a: { x: "wrong" } } as any)).toBe("");
+  });
+
+  it("returns empty string when traversal hits null", () => {
+    const sel = selectorFromPath("a.b");
+    expect(sel({ a: null } as any)).toBe("");
+  });
+
+  it("returns empty string for non-string leaf values", () => {
+    const sel = selectorFromPath("count");
+    expect(sel({ count: 42 } as any)).toBe("");
+  });
+
+  it("round-trips with pathFromSelector", () => {
+    const original = "MainNavigation.items.home";
+    const sel = selectorFromPath(original);
+    expect(pathFromSelector(sel)).toBe(original);
   });
 });

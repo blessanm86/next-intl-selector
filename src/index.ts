@@ -23,6 +23,8 @@ export type {
   TranslateArgs,
 } from "./types.js";
 
+export { pathFromSelector, selectorFromPath } from "./path-from-selector.js";
+
 /**
  * Selector-based replacement for `next-intl`'s `useTranslations()`.
  *
