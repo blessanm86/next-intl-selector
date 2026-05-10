@@ -11,11 +11,12 @@ This file briefs an agent walking into the repo cold.
 
 ```
 src/
-├── path-from-selector.ts    # Proxy → dot-path
+├── path-from-selector.ts    # pathFromSelector (Proxy → dot-path) + selectorFromPath (dot-path → selector)
 ├── wrap-base-translator.ts  # BaseTranslator → SelectorTranslator
 ├── types.ts                 # public types (BaseTranslator, MessageSelector, SelectorTranslator, TranslateArgs)
-├── index.ts                 # main entry: useTranslations, createTranslator
-└── server.ts                # server entry: getTranslations
+├── index.ts                 # main entry: useTranslations, createTranslator, pathFromSelector, selectorFromPath
+├── server.ts                # server entry: getTranslations
+└── testing.ts               # testing entry: mockSelectorTranslator
 ```
 
 Tests are colocated as `*.test.ts(x)`. There's a parity-test pattern in `index.test.tsx` that asserts our output matches `use-intl`'s for the same inputs — preserve it when modifying `wrap-base-translator.ts`.
