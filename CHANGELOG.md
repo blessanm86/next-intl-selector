@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.2.1](https://github.com/blessanm86/next-intl-selector/compare/v0.2.0...v0.2.1) (2026-05-11)
+
 ## [0.2.0](https://github.com/blessanm86/next-intl-selector/compare/v0.1.3...v0.2.0) (2026-05-10)
 
 ### Features

@@ -1,6 +1,6 @@
 {
   "name": "next-intl-selector",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Selector-based translation API for next-intl. Eliminates TS2590 at scale while preserving full ICU values typing.",
   "license": "MIT",
   "author": "Blessan Mathew <blessan.mathew@dash0.com>",
