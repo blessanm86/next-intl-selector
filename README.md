@@ -145,6 +145,8 @@ Mechanical: change the import path and the call sites.
 + t(m => m.MainNavigation.items.home)
 ```
 
+For large codebases, see [`docs/MIGRATION.md`](./docs/MIGRATION.md) — a comprehensive guide with a bootstrap prompt for AI coding agents, a 13-pattern cookbook, and known pitfalls from a real 1,200-file migration.
+
 ## Performance
 
 Measured against a 7,300-leaf real `en.json` under `tsgo`:
