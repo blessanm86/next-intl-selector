@@ -74,14 +74,14 @@
     "happy-dom": "^20.9.0",
     "next-intl": "^4.11.0",
     "oxlint": "^1.63.0",
-    "publint": "0.3.20",
+    "publint": "0.3.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "release-it": "^20.0.1",
     "tsdown": "0.22.0",
     "typescript": "^6.0.3",
     "use-intl": "^4.11.0",
-    "vitest": "4.1.6"
+    "vitest": "4.1.7"
   },
   "engines": {
     "node": ">=18"
