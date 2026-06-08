@@ -65,7 +65,7 @@
     }
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.18.2",
+    "@arethetypeswrong/cli": "0.18.3",
     "@release-it/conventional-changelog": "^11.0.0",
     "@schummar/icu-type-parser": "1.26.1",
     "@testing-library/react": "16.3.2",
@@ -74,14 +74,14 @@
     "happy-dom": "^20.9.0",
     "next-intl": "^4.11.0",
     "oxlint": "^1.63.0",
-    "publint": "0.3.20",
+    "publint": "0.3.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "release-it": "^20.0.1",
-    "tsdown": "0.22.0",
+    "tsdown": "0.22.2",
     "typescript": "^6.0.3",
     "use-intl": "^4.11.0",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   },
   "engines": {
     "node": ">=18"
