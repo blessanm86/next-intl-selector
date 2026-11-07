@@ -1,6 +1,6 @@
 # Migration Guide: `next-intl` → `next-intl-selector`
 
-A guide for migrating a large codebase from `next-intl`'s string-key API to `next-intl-selector`'s selector API. Includes a bootstrap prompt for AI coding agents, a 13-pattern cookbook, and known pitfalls from a real 1,200-file migration.
+A guide for migrating a large codebase from `next-intl`'s string-key API to `next-intl-selector`'s selector API. Includes a bootstrap prompt for AI coding agents, a 15-pattern cookbook, and known pitfalls from a real 1,200-file migration.
 
 ## How to use this document
 
@@ -31,6 +31,41 @@ grep -rn "as AsMessageKey\|as MessageKey\|as TranslationKey" src/ --include="*.t
 
 Output: a count of importers, literal callsites, and cast sites. Use this to estimate effort and get the migration approved.
 
+Then confirm that selectors are typed against your catalog. Both checks below fail silently: everything compiles, but nothing is checked.
+
+**`Messages` must come from `AppConfig`.** `next-intl-selector` reads the `Messages` type from next-intl 4's `AppConfig`. A project that only augments the global `IntlMessages` interface (the next-intl 3 setup) gets `Record<string, any>`, and `t((m) => m.KeyThatDoesNotExist)` compiles. Add the `AppConfig` augmentation:
+
+```ts
+// global.d.ts
+import type messages from "./messages/en.json";
+
+declare module "next-intl" {
+  interface AppConfig {
+    Messages: typeof messages;
+  }
+}
+```
+
+**ICU values are only typed when messages have literal types.** A JSON import types every message as `string`. Selectors still reject unknown keys, but values fall back to a loose record: `t((m) => m.Greeting, { wrong: 1 })` compiles, and so does leaving out a required `{name}`. To type values, generate a declaration with literal strings using next-intl's plugin, and set `"allowArbitraryExtensions": true` in `tsconfig.json`:
+
+```ts
+// next.config.ts
+const withNextIntl = createNextIntlPlugin({
+  experimental: { createMessagesDeclaration: "./messages/en.json" },
+});
+```
+
+This makes TypeScript parse each message used at a call site, which adds type-check time (see [DECISION.md](./DECISION.md#performance-envelope)). Decide whether you want it before the sweep, because it turns up errors for missing and misnamed values at existing call sites.
+
+Keep a type test that fails when either check stops working:
+
+```ts
+// @ts-expect-error unknown key
+t((m) => m.KeyThatDoesNotExist);
+// @ts-expect-error missing ICU value (only with literal message types)
+t((m) => m.MessageWithAPlaceholder);
+```
+
 ### Phase 1 — Pre-flight structural refactors
 
 Handle cross-file prop-chain restructures that no codemod can do. These are patterns where a string-key type is threaded through component props, function params, or config objects — and the API shape needs to change, not just the call syntax.
@@ -59,6 +94,15 @@ Write or adapt a codemod for the mechanical transforms. The transforms are:
 **Recommended tool: ts-morph.** The codemod needs type-checker access (`getContextualType()`, `getCallSignatures()`) to distinguish your translator's `t()` from unrelated functions. Text-based heuristics over-trigger. See "Pitfall: codemod translator detection" below.
 
 **Driver order matters: T1 → T6 → T2/T3 → T4 → T5.** T6 must see literal namespace arguments before T2/T3 converts them, otherwise namespace prefixes don't get inlined into selectors.
+
+**T2–T4 must emit bracket access for segments that are not identifiers.** `t("Dashboards.list.list-menu.delete")` becomes `t((m) => m.Dashboards.list["list-menu"].delete)`. Segments with dashes, spaces, or a leading digit all need brackets; in a 16,700-key catalog this came up about 600 times. Emit `.segment` only when the segment matches `/^[A-Za-z_$][\w$]*$/`, and `["segment"]` otherwise.
+
+**T6 must find every `getTranslations` call, not only `const t = await getTranslations("Ns")`.** Two common forms are easy to miss:
+
+- `const [t, data] = await Promise.all([getTranslations("Ns"), loadData()])`
+- `getTranslations({ locale, namespace: "Ns" })`, the object form used in `generateMetadata`. `next-intl-selector/server` accepts `{ locale }` only.
+
+A missed call keeps its namespace, and T2/T3 then convert its `t("key")` calls into selectors without the namespace prefix, which fail the type check.
 
 After the sweep, run `prettier --write` over all touched files before staging — selector substitutions blow lines past your line-length limit, and pre-commit lint-staged can OOM on large changesets.
 
@@ -373,6 +417,65 @@ Ship rules that prevent regression. At minimum:
 
 For custom rules: `no-namespace-arg` bans `useTranslations(arg)` / `getTranslations(arg)`. Ship early — lock-in during migration is more valuable than lock-in after.
 
+### Pattern 14 — Port custom translator wrappers
+
+**Symptom:** The app wraps `useTranslations` to add default values, a namespace, or logging. T1 only rewrites imports from `next-intl`, so the wrapper keeps returning next-intl's string-key translator, and every call site that uses it stays on string keys.
+
+**Fix:** Build the wrapper on top of `next-intl-selector`'s translator and return a `SelectorTranslator`. Implement the methods you change with loose types and cast them to the strict signature, so callers keep full checking:
+
+```ts
+import { useMemo } from "react";
+import {
+  useTranslations as useSelectorTranslations,
+  type SelectorTranslator,
+} from "next-intl-selector";
+
+export function useTranslations(): SelectorTranslator {
+  const t = useSelectorTranslations();
+  return useMemo(() => {
+    const rich = t.rich as (...args: unknown[]) => ReturnType<SelectorTranslator["rich"]>;
+    return Object.assign(
+      ((selector, ...args) => t(selector, ...args)) as SelectorTranslator,
+      {
+        rich: ((selector, values, formats) =>
+          rich(selector, { ...defaultRichValues, ...values }, formats)) as SelectorTranslator["rich"],
+        markup: t.markup,
+        raw: t.raw,
+        has: t.has,
+        hasRaw: t.hasRaw,
+      },
+    );
+  }, [t]);
+}
+```
+
+**Trap:** Don't patch `t.rich` in place. `useTranslations` returns the same memoized object on every render, so an in-place patch wraps the previous patch each time until the call stack overflows.
+
+A wrapper that takes a namespace (`useScopedTranslations("Settings")`) has to lose it, for the same reason as invariant 1. Have callers write full selectors, or pass a sub-selector (Pattern 15).
+
+### Pattern 15 — Replace namespace props with sub-selectors
+
+**Symptom:** A component or helper takes a namespace or key prefix (`namespace: "Settings.members"`) and builds keys from it: `` t(`${namespace}.title`) ``. The codemod can only bridge this with `selectorFromPath`, which drops key checking.
+
+**Fix:** Pass a function that selects the subtree, and finish the path at the call site:
+
+```tsx
+import type { MessageObjectSelector } from "next-intl-selector";
+
+type SectionHeaderProps = {
+  section: MessageObjectSelector<{ title: string; description: string }>;
+};
+
+function SectionHeader({ section }: SectionHeaderProps) {
+  const t = useTranslations();
+  return <h2 title={t((m) => section(m).description)}>{t((m) => section(m).title)}</h2>;
+}
+
+<SectionHeader section={(m) => m.Settings.members} />;
+```
+
+The callee's type says which keys the subtree must have, and the caller's selector is checked against the catalog. Because the result type is `string`, ICU values at `t((m) => section(m).title)` are loose; pass values only where the shape is shared.
+
 ---
 
 ## 4. Known pitfalls
@@ -406,6 +509,27 @@ A file that adds `((m) => m.X.Y) as MessageSelector` but is missing the type imp
 ### TS doesn't preserve narrowing across closure boundaries
 
 Inside `(m) => m.foo[spec.operator]`, `spec` is the unnarrowed union. Capture narrowed values into a `const` before the lambda (Pattern 8).
+
+### Selectors in string contexts compile silently
+
+When a value changes from a key string to a selector, TypeScript reports most places that used it as a string: `===` against a string literal, a `Record<string, …>` index, a React `key`. It does not report:
+
+- Template literals and string concatenation: `` `${item.label}` `` produces the function source, such as `(m) => m.Commands.copy`.
+- Values that accept `unknown`, such as telemetry or analytics attributes and log fields.
+- `Set` and `Map` keys, and `===` between two selectors. Inline arrows are new functions on every render, so de-duplication and lookups silently stop matching.
+
+Convert these with `pathFromSelector` (Pattern 9). typescript-eslint's `restrict-template-expressions` flags selectors in template literals; the other two need a manual search for every place the migrated value flows.
+
+### Tests break at runtime even when the type check passes
+
+After the sweep, expect unit test failures in four shapes:
+
+- **Assertions on keys.** A helper that returned `"Foo.bar"` now returns a selector, so `expect(getLabel(x)).toBe("Foo.bar")` fails. Assert on `pathFromSelector(getLabel(x))`.
+- **Mocks that echo their input.** `t: (key) => key` now renders the selector's source. `mockSelectorTranslator()` returns the path by default, so rendered output still shows `Foo.bar`.
+- **Hand-written mocks without the new methods.** Code that now calls `t.hasRaw` fails with `t.hasRaw is not a function`. Use `mockSelectorTranslator`.
+- **Strings reaching the selector translator.** A fixture or helper that still passes `"Foo.bar"` to `t()` throws a `TypeError` from inside `pathFromSelector`.
+
+Run the tests of each batch's files in Phase 4, not only at the end: in one migration a single sweep left about 900 failing tests in 90 files.
 
 ### Pass 6 (cleanup) is the longest by file count, not error count
 
