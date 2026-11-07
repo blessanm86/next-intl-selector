@@ -95,7 +95,7 @@ Write or adapt a codemod for the mechanical transforms. The transforms are:
 
 **Driver order matters: T1 → T6 → T2/T3 → T4 → T5.** T6 must see literal namespace arguments before T2/T3 converts them, otherwise namespace prefixes don't get inlined into selectors.
 
-**T2–T4 must emit bracket access for segments that are not identifiers.** `t("Dashboards.list.list-menu.delete")` becomes `t((m) => m.Dashboards.list["list-menu"].delete)`. Segments with dashes, spaces, or a leading digit all need brackets; in a 16,700-key catalog this came up about 600 times. Emit `.segment` only when the segment matches `/^[A-Za-z_$][\w$]*$/`, and `["segment"]` otherwise.
+**T2–T4 must emit bracket access for segments that are not identifiers.** `t("Settings.user-menu.logout")` becomes `t((m) => m.Settings["user-menu"].logout)`. Segments with dashes, spaces, or a leading digit all need brackets. Emit `.segment` only when the segment matches `/^[A-Za-z_$][\w$]*$/`, and `["segment"]` otherwise.
 
 **T6 must find every `getTranslations` call, not only `const t = await getTranslations("Ns")`.** Two common forms are easy to miss:
 
@@ -529,7 +529,7 @@ After the sweep, expect unit test failures in four shapes:
 - **Hand-written mocks without the new methods.** Code that now calls `t.hasRaw` fails with `t.hasRaw is not a function`. Use `mockSelectorTranslator`.
 - **Strings reaching the selector translator.** A fixture or helper that still passes `"Foo.bar"` to `t()` throws a `TypeError` from inside `pathFromSelector`.
 
-Run the tests of each batch's files in Phase 4, not only at the end: in one migration a single sweep left about 900 failing tests in 90 files.
+Run the tests of each batch's files in Phase 4, not only at the end. A single sweep can break hundreds of tests that the type check never flags.
 
 ### Pass 6 (cleanup) is the longest by file count, not error count
 
