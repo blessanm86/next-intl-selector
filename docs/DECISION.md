@@ -144,6 +144,17 @@ CI-noticeable, IDE-imperceptible. Acceptable.
   [`docs/research/legacy-cleanup-audit.md`](./legacy-cleanup-audit.md)
   and the broader research thread — see
   `2026-04-29-001-feat-selector-api-validation-plan.md` background.
+
+  Update: a different kind of codegen has since been tried on a
+  large catalog. It generates a flat key union from the catalog
+  instead of next-intl's recursive `NestedKeyOf` types, and keeps
+  string keys. It removed most of the type-check cost of next-intl's
+  key types, though a full selector migration of the same app still
+  checked faster, with fewer type instantiations and less memory. So
+  codegen is a workable alternative for teams that want to keep
+  string keys and call sites. It costs a generator in the build and
+  a watcher in development; selectors cost a call-site migration and
+  a smaller type-check bill.
 - **Catalog restructure** (split `en.json` into per-feature files
   small enough that native typing works). Architecturally cleanest
   long-term answer (this is what next-intl maintainers themselves
@@ -188,7 +199,7 @@ These are worth doing eventually if perf or DX becomes binding:
   shapes can coexist in a project. We offer the selector form for
   users who hit TS2590 or who prefer the call shape.
 - **Not opinionated about catalog structure.** Works against
-  whatever `IntlMessages` augments to.
+  whatever `Messages` type next-intl's `AppConfig` declares.
 
 ## Sources for the architectural decisions
 
