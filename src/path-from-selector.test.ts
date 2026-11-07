@@ -60,6 +60,28 @@ describe("pathFromSelector", () => {
     expect(first).toBe(second);
   });
 
+  it("resolves minified, spaced, and bracket-quoted property chains", () => {
+    const selectors = new Function(
+      'return [e=>e.A.b, ( msg ) =>\n  msg . A [ "c-d" ] [\'e f\'], (m) => m["x.y"].z]',
+    )() as Array<(m: any) => string>;
+    expect(selectors.map((s) => pathFromSelector(s))).toEqual([
+      "A.b",
+      "A.c-d.e f",
+      "x.y.z",
+    ]);
+  });
+
+  it("does not resolve a chain that starts from something other than the parameter", () => {
+    const other: any = { A: { b: "not a path" } };
+    expect(pathFromSelector((_m: any) => other.A.b)).toBe("");
+  });
+
+  it("resolves selectors with the same source but different captured keys", () => {
+    const byKey = (key: string) => (m: any) => m.Section[key];
+    expect(pathFromSelector(byKey("first"))).toBe("Section.first");
+    expect(pathFromSelector(byKey("second"))).toBe("Section.second");
+  });
+
   it("survives a selector that throws", () => {
     const selector = (m: any) => {
       void m.before;

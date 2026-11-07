@@ -315,7 +315,7 @@ const key = pathFromSelector(item.categorySelector);
 <Tab key={pathFromSelector(tab.label)} />
 ```
 
-`pathFromSelector` is WeakMap-memoized — repeated calls with the same selector reference are O(1).
+`pathFromSelector` is cached per selector reference, and plain property chains like `(m) => m.X.Y` are parsed once per distinct source text, so even inline selectors resolve without a Proxy walk.
 
 ### Pattern 10 — `as MessageSelector` to recover contextual typing in conditional spreads
 
