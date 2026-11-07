@@ -100,7 +100,7 @@ import { pathFromSelector, selectorFromPath } from "next-intl-selector";
 
 | Function | Signature | Notes |
 |---|---|---|
-| `pathFromSelector(selector)` | `MessageSelector => string` | Resolves a selector to its dot-path (e.g. `"Foo.Bar"`). Cached per-reference via WeakMap. |
+| `pathFromSelector(selector)` | `MessageSelector => string` | Resolves a selector to its dot-path (e.g. `"Foo.Bar"`). Cached per reference; plain property chains like `m => m.Foo.Bar` are parsed from source instead of run. |
 | `selectorFromPath(path)` | `string => MessageSelector` | Inverse — builds a selector from a dot-path. Use for runtime-dynamic paths from third-party SDKs or config. |
 
 ### Testing
